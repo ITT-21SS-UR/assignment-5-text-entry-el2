@@ -26,16 +26,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QTextEdit" name="userText">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>450</y>
-     <width>931</width>
-     <height>241</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="userInputLabel">
    <property name="geometry">
     <rect>
@@ -81,6 +71,11 @@
      <height>351</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>25</pointsize>
+    </font>
+   </property>
    <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>
    </property>
@@ -89,6 +84,21 @@
    </property>
    <property name="lineWidth">
     <number>20</number>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>450</y>
+     <width>931</width>
+     <height>251</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>25</pointsize>
+    </font>
    </property>
   </widget>
  </widget>
