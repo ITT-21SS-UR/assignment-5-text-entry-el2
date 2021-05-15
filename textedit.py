@@ -47,6 +47,7 @@ class SuperText(QtWidgets.QTextEdit):
         self.ui.originalText.setText(self.original_text)
         self.ui.keyPressEvent = self.keyPressEvent
         self.ui.userText.textChanged.connect(self.handleTextChanged)
+        self.ui.userText.returnPressed.connect(self.handleSentenceFinished)
         self.ui.show()
 
     def handleTextChanged(self):
@@ -56,14 +57,14 @@ class SuperText(QtWidgets.QTextEdit):
             self.word_timer.start()
             self.key_timer.start()
 
-        if len(self.last_text_state) > len(self.ui.userText.toPlainText()):
+        if len(self.last_text_state) > len(self.ui.userText.text()):
             self.last_character_entered = "backspace"
             self.num_backspace += 1
             self.add_log_entry(EventType.LETTER)
             self.key_timer.restart()
 
-        elif len(self.ui.userText.toPlainText()) > 0:
-            self.last_character_entered = self.ui.userText.toPlainText()[-1]
+        elif len(self.ui.userText.text()) > 0:
+            self.last_character_entered = self.ui.userText.text()[-1]
             self.add_log_entry(EventType.LETTER)
             self.key_timer.restart()
 
@@ -115,7 +116,7 @@ class SuperText(QtWidgets.QTextEdit):
             self.ui.close()
             return
 
-        if self.ui.userText.toPlainText().strip() == self.original_text.strip():
+        if self.ui.userText.text().strip() == self.original_text.strip():
             self.add_log_entry(EventType.SENTENCE)
             self.sentence_timer_running = False
             self.show_new_sentence()
