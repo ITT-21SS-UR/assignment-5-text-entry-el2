@@ -1,0 +1,20 @@
+author: Elisa Valletta
+proofreader: Lukas Jackermeier
+
+MacKenzie and Soukoreff give a description of the theory and practice of text entry in mobile computing in their 2002 paper. 
+The authors begin by giving a brief overview of the state of the art at the time of publication. PDAs are the focus as end devices, although it is also mentioned that the importance of text input on cell phones and pagers is increasing, with a keyboard or stylus for text input. Voice input is mentioned, but not considered relevant for the future.
+
+Further the importance of the evaluation of text input technologies is emphasized and factors are described. General bases of any evaluation are reproducibility of the method and generalizability of the results. Specifically for text input technologies, there are additional factors to consider when designing a study for evaluation, which are described below.
+
+Text and the copying of text: Although text generation would correspond to actual typical usage, copying text is usually preferred for studies to ensure generalizability. In addition, input speed and errors can be measured more accurately. However, it must be noted that copying text requires more attention. This can be prevented, for example, by asking the participants to memorize and reproduce the text. 
+Beginners or experts as study participants: Usually the design of the input techniques is focused on experts. However, due to the increasing spread of mobile devices, it is necessary that the immediate usability for beginners is high - if the learning curve is too flat, the users and thus also the customers will be deterred from the product too quickly. To measure the immediate usability of a technology, studies are structured in such a way that, after a learning phase, the measurements are collected over several iterations. 
+Quantitative or qualitative analysis: Both forms are important for evaluation. Quantitative studies give accurate, measurable results. Qualitative data are needed for insights such as participant acceptance.
+Speed or Accuracy: Speed can be defined in fixed units of measurement, characters per seconds (cps) or words per minute (wpm). Accuracy can be defined in different ways, e.g. the percentage of wrong characters or the number of keystrokes per character. Furthermore, the type of error can be documented. 
+
+In the following section, optimization possibilities for text input are described.
+One possibility is to minimize the movement during input. For this purpose, the authors present a statistical model, based on Fitts’law and a language corpus, that can be used to predict the efficiency of new input techniques. Another optimization technique is language prediction. By analyzing a suitable corpus, a prediction can be made during text input as to which letters or words are most likely to follow. Finally, the text input can be improved by key minimization techniques, e.g. by assigning several characters to a key.
+
+In conclusion, the authors give an overview of different methods of text input with the keyboard (telephone keyboard, reduced Qwerty keyboards, 5-key input, etc.) and the pen (handwriting recognition, unistrokes, gesture input, soft keyboard). Since this represents an overview of the state of the art in the early 2000s, it will not be discussed further in this summary.
+
+In a nutshell, the work of MacKenzie and Soukoreff provides a good overview of what to look for when evaluating and optimizing new text input technologies.
+
