@@ -86,19 +86,14 @@
     <number>20</number>
    </property>
   </widget>
-  <widget class="QLineEdit" name="userText">
+  <widget class="QTextEdit" name="textEdit">
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>450</y>
+     <y>440</y>
      <width>931</width>
-     <height>251</height>
+     <height>261</height>
     </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>25</pointsize>
-    </font>
    </property>
   </widget>
  </widget>
