@@ -261,7 +261,6 @@ class SuperText(QtWidgets.QTextEdit):
             }, ignore_index=True)
 
         if event_type == EventType.SENTENCE:
-            print(self.sentence_timer.elapsed())
             self.df = self.df.append({
                 'event': "sentence",
                 'user_id': self.user_id,
