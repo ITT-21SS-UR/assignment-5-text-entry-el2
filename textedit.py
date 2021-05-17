@@ -102,21 +102,14 @@ class SuperText(QtWidgets.QTextEdit):
             self.word_timer.start()
             self.key_timer.start()
 
-        if len(self.last_text_state) > len(self.text_edit.toPlainText()):
-            self.last_character_entered = "backspace"
-            self.num_backspace += 1
-            self.add_log_entry(EventType.LETTER)
-            self.key_timer.restart()
-
         elif len(self.text_edit.toPlainText()) > 0:
             self.last_character_entered = self.text_edit.toPlainText()[-1]
             self.add_log_entry(EventType.LETTER)
             self.key_timer.restart()
 
         if self.last_character_entered == " ":
-            time_for_word = self.word_timer.elapsed()
-            self.word_timer.restart()
             self.add_log_entry(EventType.WORD)
+            self.word_timer.restart()
             self.word_count += 1
 
         if self.last_character_entered == "\n":
@@ -174,6 +167,12 @@ class SuperText(QtWidgets.QTextEdit):
 
         if event.key() == QtCore.Qt.Key_Return:
             self.handle_sentence_finished()
+
+        if event.key() == QtCore.Qt.Key_Backspace:
+            self.num_backspace += 1
+            self.last_character_entered = "backspace"
+            self.add_log_entry(EventType.LETTER)
+            self.key_timer.restart()
 
     def highlight_errors(self):
         self.text_changed_by_user = False
