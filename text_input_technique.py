@@ -86,7 +86,7 @@ class TextEdit(QTextEdit):
     def keyPressEvent(self, e):
         self.key_pressed_signal.emit(e)
         if e.key() == Qt.Key_Return:
-            return 
+            return
 
         if self._completer is not None and self._completer.popup().isVisible():
             # The following keys are forwarded by the completer to the widget.
@@ -235,7 +235,7 @@ class SuperText(QtWidgets.QTextEdit):
         self.text_changed_by_user = True
 
         if event.key() == QtCore.Qt.Key_Return:
-            self.handleSentenceFinished()
+            self.handle_sentence_finished()
 
     def add_log_entry(self, event_type):
         if event_type == EventType.LETTER:
@@ -275,7 +275,7 @@ class SuperText(QtWidgets.QTextEdit):
                 'numBksp': self.num_backspace
             }, ignore_index=True)
 
-    def handleSentenceFinished(self):
+    def handle_sentence_finished(self):
         if self.text_edit.toPlainText().strip() == self.original_text.strip():
             self.add_log_entry(EventType.SENTENCE)
             self.sentence_timer_running = False
