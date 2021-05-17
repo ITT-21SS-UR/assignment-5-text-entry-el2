@@ -86,15 +86,16 @@
     <number>20</number>
    </property>
   </widget>
-  <widget class="QTextEdit" name="userText">
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>440</y>
+     <y>450</y>
      <width>931</width>
-     <height>261</height>
+     <height>241</height>
     </rect>
    </property>
+   <layout class="QVBoxLayout" name="userInputLayout"/>
   </widget>
  </widget>
  <resources/>
