@@ -46,6 +46,7 @@ class SuperText(QtWidgets.QTextEdit):
         super(SuperText, self).__init__()
         self.ui = uic.loadUi('text_entry_ui.ui')
         self.user_input_layout = self.ui.userInputLayout
+        self.text_changed_by_user = True
         self.text_edit = ExtendedTextEdit(self)
         self.current_sentence_index = 0
         self.parse_setup()
@@ -56,7 +57,6 @@ class SuperText(QtWidgets.QTextEdit):
         self.word_timer = QtCore.QTime()
         self.key_timer = QtCore.QTime()
         self.sentence_timer_running = False
-        self.text_changed_by_user = True
         self.last_text_state = ""
         self.last_character_entered = ""
         self.num_backspace = 0
@@ -71,6 +71,7 @@ class SuperText(QtWidgets.QTextEdit):
 
         self.ui.userInputLayout.addWidget(self.text_edit)
         self.text_edit.key_pressed_signal.connect(self.handle_key_pressed)
+        self.text_edit.textChanged.connect(self.handle_text_changed)
         self.ui.show()
 
     def parse_setup(self):
@@ -93,7 +94,6 @@ class SuperText(QtWidgets.QTextEdit):
 
     def handle_text_changed(self):
         if not self.text_changed_by_user:
-            self.text_changed_by_user = True
             return
 
         if not self.sentence_timer_running:
@@ -115,7 +115,6 @@ class SuperText(QtWidgets.QTextEdit):
 
         if self.last_character_entered == " ":
             time_for_word = self.word_timer.elapsed()
-            print(time_for_word)
             self.word_timer.restart()
             self.add_log_entry(EventType.WORD)
             self.word_count += 1
@@ -195,7 +194,6 @@ class SuperText(QtWidgets.QTextEdit):
         index = 0
         while index < len(user_text):
             if index >= len(original_text):
-                print("yep")
                 error_index_list.append(index)
                 index += 1
                 continue
