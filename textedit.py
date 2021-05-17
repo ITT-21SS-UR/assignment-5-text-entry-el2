@@ -159,7 +159,6 @@ class SuperText(QtWidgets.QTextEdit):
         if self.text_edit.toPlainText().strip() == self.original_text.strip():
             self.add_log_entry(EventType.SENTENCE)
             self.sentence_timer_running = False
-            self.show_new_sentence()
 
             if self.current_sentence_index == len(self.sentence_list) - 1:
                 self.df.to_csv(sys.stdout, index=False)
