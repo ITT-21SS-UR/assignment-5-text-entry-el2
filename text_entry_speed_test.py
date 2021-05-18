@@ -26,7 +26,7 @@ CSV_HEADER = ["event", "user_id", "timestamp", "helper_enabled", "time_taken_in_
 
 class EventType(Enum):
     """
-    Enum used to differentiate between the different input events for logging
+    Enum used to differentiate between the different input events for logging.
     """
     LETTER = 1
     WORD = 2
@@ -36,8 +36,8 @@ class EventType(Enum):
 
 class ExtendedTextEdit(QtWidgets.QTextEdit):
     """
-    Class that extends QTextEdit
-    Adds a new signal and intercepts keypresses of the "Return" key
+    Class that extends QTextEdit.
+    Adds a new signal and intercepts keypresses of the "Return" key.
     """
 
     key_pressed_signal = QtCore.pyqtSignal(QtGui.QKeyEvent)
@@ -54,7 +54,7 @@ class ExtendedTextEdit(QtWidgets.QTextEdit):
 
 class SuperText(QtWidgets.QTextEdit):
     """
-    Central class for this experiment
+    Central class for this experiment.
     """
 
     sentence_list = []
@@ -87,6 +87,7 @@ class SuperText(QtWidgets.QTextEdit):
         """
         Initializes the UI elements and decides which user text input widget should be added,
         depending on whether or not the helper is enabled
+        authors: ev, lj
         """
         self.setWindowTitle('Typing Speed Test')
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -111,6 +112,7 @@ class SuperText(QtWidgets.QTextEdit):
     def parse_setup(self):
         """
         Parses the passed arguments and assigns the values to the class variables
+        author: ev
         """
 
         if len(sys.argv) is not 4:
@@ -145,6 +147,7 @@ class SuperText(QtWidgets.QTextEdit):
     def init_completer(self):
         """
         Initializes the QCompleter with the list of words from the passed sentence list, and attaches it to the TextEdit
+        author: lj
         """
         word_list = []
         for sentence in self.sentence_list:
@@ -160,6 +163,10 @@ class SuperText(QtWidgets.QTextEdit):
         self.text_edit.setCompleter(self.completer)
 
     def handle_text_changed(self):
+        """
+        Handle changes in the input TextEdit
+        authors: ev, lj
+        """
         if not self.text_changed_by_user:
             # prevent infinite loops caused by text changes in automatic error highlighting
             return
@@ -184,6 +191,11 @@ class SuperText(QtWidgets.QTextEdit):
         self.highlight_errors()
 
     def add_log_entry(self, event_type):
+        """
+        Appends log entries to the dataframe
+        :param event_type: the type of event that should be logged
+        authors: ev, lj
+        """
         if event_type == EventType.LETTER:
             self.df = self.df.append({
                 'event': "key_press",
@@ -224,6 +236,11 @@ class SuperText(QtWidgets.QTextEdit):
             }, ignore_index=True)
 
     def handle_sentence_finished(self):
+        """
+        When the sentence is finished, check if it was entered correctly.
+        If yes, show the next sentence or finish the experiment when all sentences were shown.
+        author: lj
+        """
         self.text_changed_by_user = False
         if self.text_edit.toPlainText().strip() == self.original_text.strip():
             self.add_log_entry(EventType.SENTENCE)
@@ -248,19 +265,27 @@ class SuperText(QtWidgets.QTextEdit):
             self.key_timer.restart()
 
     def highlight_errors(self):
-        self.text_changed_by_user = False
+        """
+        Highlight errors with a red background as the user is typing.
+        This is done by matching the current user input against the current original sentence.
+        The highlighting is case sensitive
+        author: lj
+        """
+        self.text_changed_by_user = False      # set this to False in order to not trigger an infinite loop
         text_format = QtGui.QTextCharFormat()
         text_format.setBackground(QtGui.QBrush(QtGui.QColor("white")))
         cursor = self.text_edit.textCursor()
 
         user_text = self.text_edit.toPlainText()
         original_text = self.original_text
+
+        # reset the highlighting
         cursor.setPosition(0)
         cursor.movePosition(QtGui.QTextCursor.EndOfBlock, 1)
         cursor.mergeCharFormat(text_format)
 
+        # mark current errors
         text_format.setBackground(QtGui.QBrush(QtGui.QColor("red")))
-
         error_index_list = []
         index = 0
         while index < len(user_text):
@@ -280,6 +305,10 @@ class SuperText(QtWidgets.QTextEdit):
             cursor.mergeCharFormat(text_format)
 
     def show_new_sentence(self):
+        """
+        Update the current sentence and reset logging stats
+        author: ev
+        """
         self.current_sentence_index += 1
         self.original_text = self.sentence_list[self.current_sentence_index]
         self.ui.originalText.setText(self.original_text)
