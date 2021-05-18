@@ -20,8 +20,8 @@ import pandas as pd
 from datetime import datetime
 from text_input_technique import TextEdit
 
-CSV_HEADER = ["event", "user_id", "timestamp", "helper_enabled", "time_taken_in_ms", "auto_completed", "auto_completion_count",
-              "wpm", "numBksp"]
+CSV_HEADER = ["event", "user_id", "timestamp", "helper_enabled", "time_taken_in_ms", "auto_completed",
+              "auto_completion_count", "wpm", "numBksp"]
 
 
 class EventType(Enum):
@@ -316,7 +316,6 @@ class SuperText(QtWidgets.QTextEdit):
         self.last_character_entered = ""
         self.text_edit.setText("")
         self.word_count = 0
-
 
 
 def main():
