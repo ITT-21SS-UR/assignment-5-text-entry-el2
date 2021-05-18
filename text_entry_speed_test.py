@@ -1,21 +1,33 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+This file expects three arguments:
+- A .txt file containing the sentences that should be displayed (separated by new line)
+- A user ID (Integer)
+- Either 0 or 1, depending on if the helper should be disabled or enabled (0 = disabled, 1 = enabled)
+
+Opens a Widget that implements a typing speed test. Upon completion the logged data is printed on stdout.
+The workload was evenly distributed between the two team members.
+
+Authors: ev, lj
+"""
+
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-import random
 from enum import Enum
 import pandas as pd
 from datetime import datetime
+from text_input_technique import TextEdit
 
-TEMPLATE_TEXT_LIST = ["Yep",
-                      "Here we have another wonderful sentence.",
-                      "Wow this is so much fun!"]
-
-CSV_HEADER = ["event", "user_id", "timestamp", "time_taken_in_ms", "wpm", "numBksp"]
+CSV_HEADER = ["event", "user_id", "timestamp", "helper_enabled", "time_taken_in_ms", "auto_completed", "auto_completion_count",
+              "wpm", "numBksp"]
 
 
 class EventType(Enum):
+    """
+    Enum used to differentiate between the different input events for logging
+    """
     LETTER = 1
     WORD = 2
     SENTENCE = 3
@@ -23,6 +35,10 @@ class EventType(Enum):
 
 
 class ExtendedTextEdit(QtWidgets.QTextEdit):
+    """
+    Class that extends QTextEdit
+    Adds a new signal and intercepts keypresses of the "Return" key
+    """
 
     key_pressed_signal = QtCore.pyqtSignal(QtGui.QKeyEvent)
 
@@ -37,17 +53,22 @@ class ExtendedTextEdit(QtWidgets.QTextEdit):
 
 
 class SuperText(QtWidgets.QTextEdit):
+    """
+    Central class for this experiment
+    """
 
     sentence_list = []
     original_text = ""
     user_id = 0
+    helper_enabled = False
+    text_edit = ()
+    completer = ()
 
     def __init__(self):
         super(SuperText, self).__init__()
         self.ui = uic.loadUi('text_entry_ui.ui')
         self.user_input_layout = self.ui.userInputLayout
         self.text_changed_by_user = True
-        self.text_edit = ExtendedTextEdit(self)
         self.current_sentence_index = 0
         self.parse_setup()
         self.original_text = self.sentence_list[0]
@@ -63,11 +84,24 @@ class SuperText(QtWidgets.QTextEdit):
         self.word_count = 0
 
     def initUI(self):
-        self.setWindowTitle('SuperText')
+        """
+        Initializes the UI elements and decides which user text input widget should be added,
+        depending on whether or not the helper is enabled
+        """
+        self.setWindowTitle('Typing Speed Test')
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setMouseTracking(True)
+        self.ui.originalText.setFont(QtGui.QFont('Calterra', 20))
         self.ui.originalText.setText(self.original_text)
         self.ui.keyPressEvent = self.keyPressEvent
+
+        if self.helper_enabled:
+            self.text_edit = TextEdit(self)
+            self.init_completer()
+        else:
+            self.text_edit = ExtendedTextEdit(self)
+
+        self.text_edit.setFont(QtGui.QFont('Calterra', 20))
 
         self.ui.userInputLayout.addWidget(self.text_edit)
         self.text_edit.key_pressed_signal.connect(self.handle_key_pressed)
@@ -75,9 +109,13 @@ class SuperText(QtWidgets.QTextEdit):
         self.ui.show()
 
     def parse_setup(self):
+        """
+        Parses the passed arguments and assigns the values to the class variables
+        """
 
-        if len(sys.argv) is not 3:
-            print("Please pass a .txt file with sentences and a user ID as arguments!")
+        if len(sys.argv) is not 4:
+            print("Please pass a .txt file with sentences, a user ID, and a number that designates whether or not the "
+                  "helper should be enabled (0 = disabled, 1 = enabled)")
 
         else:
             file = open(sys.argv[1], 'r')
@@ -92,11 +130,42 @@ class SuperText(QtWidgets.QTextEdit):
                 print("Please provide a valid ID as second argument! Using fallback ID (0) instead.")
                 self.user_id = 0
 
+            try:
+                helper_arg = int(sys.argv[3])
+
+                if helper_arg == 1:
+                    self.helper_enabled = True
+                elif helper_arg == 0:
+                    self.helper_enabled = False
+                else:
+                    print("Please pass either 0 or 1 as a third parameter for helper activation!")
+            except ValueError:
+                print("Please pass either 0 or 1 as a third parameter for helper activation!")
+
+    def init_completer(self):
+        """
+        Initializes the QCompleter with the list of words from the passed sentence list, and attaches it to the TextEdit
+        """
+        word_list = []
+        for sentence in self.sentence_list:
+            words = sentence.split()
+            for word in words:
+                if word not in word_list:
+                    word_list.append(word)
+
+        self.completer = QtWidgets.QCompleter(word_list, self)
+        self.completer.setCaseSensitivity(QtCore.Qt.CaseSensitive)
+        self.completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
+        self.completer.setModelSorting(QtWidgets.QCompleter.UnsortedModel)
+        self.text_edit.setCompleter(self.completer)
+
     def handle_text_changed(self):
         if not self.text_changed_by_user:
+            # prevent infinite loops caused by text changes in automatic error highlighting
             return
 
         if not self.sentence_timer_running:
+            # start all timers
             self.sentence_timer_running = True
             self.sentence_timer.start()
             self.word_timer.start()
@@ -112,36 +181,44 @@ class SuperText(QtWidgets.QTextEdit):
             self.word_timer.restart()
             self.word_count += 1
 
-        if self.last_character_entered == "\n":
-            self.handleSentenceFinished()
+        self.highlight_errors()
 
     def add_log_entry(self, event_type):
         if event_type == EventType.LETTER:
             self.df = self.df.append({
                 'event': "key_press",
-                'user_id': 1,
+                'user_id': self.user_id,
                 'timestamp': datetime.now(),
+                'helper_enabled': self.helper_enabled,
                 'time_taken_in_ms': self.key_timer.elapsed(),
-                'wpm': 0,
+                'auto_completed': self.text_edit.auto_completed if self.helper_enabled else False,
+                'auto_completion_count': self.text_edit.auto_completion_count if self.helper_enabled else 0,
+                'wpm': None,
                 'numBksp': self.num_backspace
             }, ignore_index=True)
 
         if event_type == EventType.WORD:
             self.df = self.df.append({
                 'event': "word",
-                'user_id': 1,
+                'user_id': self.user_id,
                 'timestamp': datetime.now(),
+                'helper_enabled': self.helper_enabled,
                 'time_taken_in_ms': self.word_timer.elapsed(),
-                'wpm': 0,
+                'auto_completed': self.text_edit.auto_completed if self.helper_enabled else False,
+                'auto_completion_count': self.text_edit.auto_completion_count if self.helper_enabled else 0,
+                'wpm': self.word_count / (self.sentence_timer.elapsed() / 60000),
                 'numBksp': self.num_backspace
             }, ignore_index=True)
 
         if event_type == EventType.SENTENCE:
             self.df = self.df.append({
                 'event': "sentence",
-                'user_id': 1,
+                'user_id': self.user_id,
                 'timestamp': datetime.now(),
+                'helper_enabled': self.helper_enabled,
                 'time_taken_in_ms': self.sentence_timer.elapsed(),
+                'auto_completed': self.text_edit.auto_completed if self.helper_enabled else False,
+                'auto_completion_count': self.text_edit.auto_completion_count if self.helper_enabled else 0,
                 'wpm': self.word_count / (self.sentence_timer.elapsed() / 60000),
                 'numBksp': self.num_backspace
             }, ignore_index=True)
@@ -157,9 +234,6 @@ class SuperText(QtWidgets.QTextEdit):
                 self.ui.close()
             else:
                 self.show_new_sentence()
-
-        else:
-            self.highlight_errors()
 
     def handle_key_pressed(self, event):
         self.text_changed_by_user = True
